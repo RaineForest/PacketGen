@@ -1,0 +1,5 @@
+ARP Request Generator
+
+./genArpReq <interface name> <target IP>
+
+Only generates requests, does not receive responses
