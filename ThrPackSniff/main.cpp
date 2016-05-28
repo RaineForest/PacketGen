@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
 	}
 	char* if_name = argv[1];
 
-	socketd = socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));
+	socketd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 	if(socketd == -1) {
 		printf("%s\n", strerror(errno));
 		return 1;
