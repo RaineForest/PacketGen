@@ -1,0 +1,5 @@
+Threaded Packet Sniffer
+
+./ThrPackSniff <interface name>
+
+Prints out SRC and DST MAC addresses for each frame received.
