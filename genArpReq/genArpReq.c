@@ -13,7 +13,7 @@
 //NOTE: needs root priv
 int main(int argc, char** argv) {
 	if(argc != 3) {
-		printf("Usage: genArpReq <iname> <target ip>");
+		printf("Usage: genArpReq <iname> <target ip>\n");
 		return 1;
 	}
 	char* if_name = argv[1];
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 	//create the socket
 	int fd = socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_ARP));
 	if(fd == -1) {
-		printf("%s", strerror(errno));
+		printf("%s\n", strerror(errno));
 		return 1;
 	}
 
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 		memcpy(ifr.ifr_name, if_name, if_name_len);
 		ifr.ifr_name[if_name_len] = 0;
 	} else {
-		printf("interface name is too long");
+		printf("interface name is too long\n");
 		return 1;
 	}
 	if(ioctl(fd, SIOCGIFINDEX, &ifr) == -1) {
@@ -64,32 +64,31 @@ int main(int argc, char** argv) {
 	const char* target_ip_string = argv[2]; //target addr
 	struct in_addr target_ip_addr = {0};
 	if(!inet_aton(target_ip_string, &target_ip_addr)) {
-		printf("%s is not a vaild IP address", target_ip_string);
+		printf("%s is not a vaild IP address\n", target_ip_string);
 		return 1;
 	}
 	memcpy(&req.arp_tpa, &target_ip_addr.s_addr, sizeof(req.arp_tpa));
 
 	//get src MAC
 	if(ioctl(fd, SIOCGIFHWADDR, &ifr) == -1) {
-		printf("%s", strerror(errno));
+		printf("%s\n", strerror(errno));
 		return 1;
 	}
 	if(ifr.ifr_hwaddr.sa_family != ARPHRD_ETHER) {
-		printf("not an Ethernet interface");
+		printf("not an Ethernet interface\n");
 		return 1;
 	}
 	const unsigned char* src_mac = (unsigned char*) ifr.ifr_hwaddr.sa_data;
 
 	memcpy(&req.arp_sha, src_mac, sizeof(req.arp_sha));
 
-	//i'm a lazy fuck, so i'm just gonna hard code the ip addr i have now
-	//TODO: find a portable way to dynamically find addr
-	const char* src_ip_string = "192.168.0.9";
+	//get our ip addr
 	struct in_addr src_ip_addr = {0};
-	if(!inet_aton(src_ip_string, &src_ip_addr)) {
-		printf("%s is not a valid IP address", src_ip_string);
+	if(ioctl(fd, SIOCGIFADDR, &ifr) == -1) {
+		printf("%s\n", strerror(errno));
 		return 1;
 	}
+	src_ip_addr = ((struct sockaddr_in*)&ifr.ifr_addr)->sin_addr;
 
 	memcpy(&req.arp_spa, &src_ip_addr.s_addr, sizeof(req.arp_spa));
 
