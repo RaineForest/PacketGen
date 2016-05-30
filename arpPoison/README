@@ -1,3 +1,6 @@
 arpPoison
 
 ARP poisoning proof-of-concept
+
+TODO:
+- complete MiTM: setting IP addr of poisoning interface, routing through another interface to gateway
